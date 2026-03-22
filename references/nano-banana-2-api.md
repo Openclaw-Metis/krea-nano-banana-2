@@ -69,8 +69,8 @@ Optional (common):
 **`imageUrls`**: Accepts Krea CDN URLs and some external URLs, but **NOT all hosts work**.
 - ✅ Azure CDN (`*.azurefd.net`) — works
 - ✅ Krea CDN (`app-uploads.krea.ai`) — works
+- ✅ Other external URLs — may work, try first
 - ❌ catbox.moe — silently ignored (API returns 200 but image is not used)
-- ❌ Other free image hosts — untested, may be silently ignored
 
 **`styleImages`**: Stricter validation. Only accepts Krea CDN URLs (`app-uploads.krea.ai`).
 - ❌ External URLs return 422 "Invalid asset URL"

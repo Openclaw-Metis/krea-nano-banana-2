@@ -64,10 +64,26 @@ Optional (common):
 | Prompt expansion | `skipPromptExpansion` | Not supported |
 | Styles by ID | `styles` array | Not supported |
 
+## URL compatibility (important)
+
+**`imageUrls`**: Accepts Krea CDN URLs and some external URLs, but **NOT all hosts work**.
+- ✅ Azure CDN (`*.azurefd.net`) — works
+- ✅ Krea CDN (`app-uploads.krea.ai`) — works
+- ❌ catbox.moe — silently ignored (API returns 200 but image is not used)
+- ❌ Other free image hosts — untested, may be silently ignored
+
+**`styleImages`**: Stricter validation. Only accepts Krea CDN URLs (`app-uploads.krea.ai`).
+- ❌ External URLs return 422 "Invalid asset URL"
+
+**`imageUrls` vs `styleImages`**: Mutually exclusive. API docs state: "If [imageUrls] provided, style images are ignored."
+
+**Warning**: If `imageUrls` contains a URL that Krea cannot fetch, the API does NOT return an error — it silently ignores the reference image and generates based on prompt only. Always use a known-compatible URL host.
+
 ## Common errors
 
 - **401** unauthenticated (token missing/invalid)
 - **402** out of credits
 - **429** too many concurrent jobs
 - **400** invalid body (prompt too short, invalid aspect ratio, etc.)
+- **422** validation failed (e.g., styleImages with non-Krea URL)
 - **403 + "error code: 1010"** Cloudflare block (often fixed by setting a browser-like User-Agent)

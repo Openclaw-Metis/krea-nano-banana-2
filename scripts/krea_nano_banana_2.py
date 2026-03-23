@@ -247,13 +247,27 @@ def main() -> int:
     if args.image_urls:
         image_urls = args.image_urls
     elif args.image_urls_json:
-        image_urls = json.loads(args.image_urls_json)
+        try:
+            image_urls = json.loads(args.image_urls_json)
+        except json.JSONDecodeError as e:
+            raise SystemExit(f"--image-urls-json is not valid JSON: {e}")
     if image_urls:
         body["imageUrls"] = image_urls
 
     # Style images
+    style_images = None
     if args.style_images_json:
-        body["styleImages"] = json.loads(args.style_images_json)
+        try:
+            style_images = json.loads(args.style_images_json)
+        except json.JSONDecodeError as e:
+            raise SystemExit(f"--style-images-json is not valid JSON: {e}")
+
+    # imageUrls and styleImages are mutually exclusive
+    if image_urls and style_images:
+        raise SystemExit("Cannot use both --image-urls and --style-images-json. "
+                         "The API ignores styleImages when imageUrls is present.")
+    if style_images:
+        body["styleImages"] = style_images
 
     job = http_json("POST", GENERATE_PATH, token, args.user_agent, body,
                     webhook_url=args.webhook_url)

@@ -53,16 +53,6 @@ Optional (common):
 | `--token` | — | API token (prefer env var) |
 | `--quiet` | false | Suppress progress logs |
 
-## Key differences from Z Image API
-
-| Feature | Z Image | Nano Banana 2 |
-|---------|---------|---------------|
-| Endpoint | `/generate/image/z-image/z-image` | `/generate/image/google/nano-banana-flash` |
-| Size control | `width` + `height` (required) | `aspectRatio` + `resolution` (or custom w/h) |
-| Reference images | `imageUrl` (single) | `imageUrls` (array, multiple) |
-| Init image blend | `denoising_strength` | Not supported |
-| Prompt expansion | `skipPromptExpansion` | Not supported |
-| Styles by ID | `styles` array | Not supported |
 
 ## URL compatibility (important)
 

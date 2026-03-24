@@ -50,25 +50,79 @@ Resolution: `1K` (default), `2K`, or `4K`.
 
 Batch: 1–4 images (default 1). More images = more credits.
 
-### 3) Reference images (optional, for character consistency)
+### 3) Reference images — identity preservation
 
-To maintain the same face/character across scenes, pass `--image-urls` with 1-3 reference image URLs:
+Use `--image-urls` when the goal is **same face / same identity** across different scenes.
 
-```bash
-python3 {baseDir}/scripts/krea_nano_banana_2.py \
-  --prompt "..." \
-  --aspect-ratio 4:5 \
-  --image-urls "https://example.azurefd.net/ref.png" \
-  --download --out-dir generated
+#### Identity vs style
+
+| Goal | Flag | Preserves |
+|------|------|-----------|
+| Same face in new scene | `--image-urls` | Identity |
+| Same aesthetic / palette | `--style-images-json` | Style only |
+
+`imageUrls` and `styleImages` are mutually exclusive. When both are present, the API uses `imageUrls`.
+
+#### Prompt rules for identity lock
+
+Reference owns the face. Prompt owns scene, wardrobe, lighting, mood, and composition.
+
+Include: scene, environment, wardrobe, lighting, mood, composition, short subject anchor.
+Leave out: facial features, ethnicity, skin tone, age markers, hair details that already exist in the reference.
+
+Golden template:
 ```
+[subject anchor], [wardrobe], [action/pose], [environment], [lighting/mood], [photography style], [quality]
+```
+`"a young woman, oversized denim jacket, leaning on a railing, rooftop bar overlooking city skyline at dusk, warm golden light, lifestyle photography, 8k"`
 
-**URL compatibility warning:**
-- Azure CDN (`*.azurefd.net`) and Krea CDN (`app-uploads.krea.ai`) — work
-- catbox.moe — silently ignored (API returns 200 but reference is not used)
-- Other external URLs — may work, try first
-- `imageUrls` and `styleImages` are **mutually exclusive** (API ignores styleImages when imageUrls is present)
+Rules:
+1. Keep the subject anchor short and identical across a series.
+2. Generate one identity per image. Put bystanders in background blur only.
+3. Use 1-2 clear, front-facing reference photos. More refs soften features.
+4. Keep the face unobstructed. Avoid sunglasses, masks, large hats, heavy bangs.
 
-See `references/nano-banana-2-api.md` for full details on `styleImages`, webhooks, and all CLI flags.
+#### Identity-locked prompt examples
+
+Café, 4:5
+`"a young woman, white linen shirt, sitting at an outdoor café table, croissant and espresso, morning sunlight, lifestyle photography, 8k"`
+
+Urban night, 4:5
+`"a young woman walking through neon-lit Shibuya crossing at night, black leather jacket, street photography, cinematic, rain-wet reflections"`
+
+Fantasy / armor, 4:5
+`"a young woman in silver armor standing in a snow-covered forest clearing, breath visible in cold air, overcast diffused light, epic fantasy photography, 8k"`
+
+#### Multi-scene series
+
+Lock these across the whole series:
+- same `--image-urls`
+- same subject anchor text
+- same `--resolution`
+- same `--aspect-ratio`
+
+Vary only scene, wardrobe, lighting, composition, and action. Generate one image at a time (`--batch-size 1`). Before the next image, compare the result with the reference. If facial structure, skin tone, or age drift, fix the prompt first.
+
+#### Failure modes
+
+| Symptom | Fix |
+|---------|-----|
+| Face changes between scenes | Remove facial descriptors. Let the reference own the face. |
+| Reference silently ignored | Use Azure CDN or Krea CDN. Test the first output before committing to a series. |
+| Identity averages out | Use 1-2 refs max, front-facing, well-lit. |
+| Attribute drift | Do not restate ethnicity, skin tone, age, or hair details unless you want them changed. |
+| Series inconsistency | Keep anchor text, aspect ratio, and resolution identical across the series. |
+| Face hallucinated | Do not occlude the face with sunglasses, masks, large hats, or heavy bangs. |
+
+#### URL compatibility
+
+Reliable: Azure CDN (`*.azurefd.net`), Krea CDN (`app-uploads.krea.ai`).
+Broken: catbox.moe.
+Other hosts: test first.
+
+Krea may return success even when the reference URL was ignored. If the first output looks generic, treat the URL as untrusted and retry with a supported host.
+
+See `references/nano-banana-2-api.md` for full API details.
 
 ### 4) Run the script
 

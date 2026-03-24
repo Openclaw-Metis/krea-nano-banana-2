@@ -33,15 +33,29 @@ Pattern: `[subject], [style], [lighting], [details], [quality modifiers]`
 **Travel scenery**
 `a young woman standing on a cliff overlooking the ocean, wind blowing her hair, dramatic sunset sky, cinematic wide shot, travel photography`
 
-## Using reference images (imageUrls)
+## Identity preservation with reference images
 
-Nano Banana 2 supports multiple reference images via `--image-urls`. This is critical for character consistency (e.g., maintaining the same face across different scenes).
+Use `--image-urls` for same face / same identity. Do not use style prompts as a substitute.
 
-Tips for reference images:
-- Use 1-3 clear, well-lit reference photos of the character
-- Front-facing, neutral expression works best as a base reference
-- The model will blend reference visuals with your text prompt
-- More references = more consistent results but slightly less creative freedom
+Core rule: reference owns the face; prompt owns scene, wardrobe, lighting, mood, and composition.
+
+### Include
+- Scene and environment
+- Clothing and accessories
+- Lighting and mood
+- Composition
+- A short subject anchor such as `a young woman`
+
+### Leave out
+- Facial features
+- Ethnicity or skin tone
+- Age markers unless intentionally changing age
+- Hair details that already exist in the reference
+
+### Reference image selection
+- Prefer 1-2 front-facing, well-lit images
+- Avoid heavy filters, extreme angles, group photos, low resolution
+- Avoid 3+ references; they average features and weaken identity lock
 
 ## Tips
 
